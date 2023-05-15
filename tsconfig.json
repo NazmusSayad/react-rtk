@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "moduleResolution": "nodenext",
+    "lib": ["esnext", "dom"],
+    "skipLibCheck": true,
+    "declaration": true,
+    "inlineSourceMap": false,
+    "strict": true,
+    "pretty": true,
+    "removeComments": true
+  },
+  "include": ["src"]
+}

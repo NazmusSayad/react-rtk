@@ -1,0 +1,27 @@
+{
+  "name": "react-rtk",
+  "version": "0.0.0",
+  "devDependencies": {
+    "npm-ez": "^2.0.3",
+    "typescript": "^5.0.4",
+    "@reduxjs/toolkit": "*",
+    "react-redux": "*"
+  },
+  "peerDependencies": {
+    "@reduxjs/toolkit": "*",
+    "react-redux": "*"
+  },
+  "scripts": {
+    "dev": "npm-ez dev",
+    "build": "npm-ez build"
+  },
+  "main": "./dist-cjs/index.cjs",
+  "module": "./dist-mjs/index.mjs",
+  "exports": {
+    ".": {
+      "require": "./dist-cjs/index.cjs",
+      "import": "./dist-mjs/index.mjs",
+      "types": "./dist-mjs/index.mts"
+    }
+  }
+}
