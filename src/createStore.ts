@@ -4,16 +4,16 @@ import { EntriesToObject, SliceKey } from './types'
 import { sliceKey } from './config'
 
 export default <T extends any[]>(...slices: T) => {
-  type Reducer = EntriesToObject<{
-    [I in keyof T]: [T[I][SliceKey]['name'], T[I][SliceKey]]
+  type Reducers = EntriesToObject<{
+    [I in keyof T]: [T[I][SliceKey]['name'], T[I][SliceKey]['reducer']]
   }>
 
   type State = {
-    [K in keyof Reducer]: ReturnType<Reducer[K]['getInitialState']>
+    [I in keyof Reducers]: ReturnType<Reducers[I]>
   }
 
-  const reducer: Reducer = Object.fromEntries(
-    slices.map((slice) => [slice[sliceKey].name, slice[sliceKey]])
+  const reducer: Reducers = Object.fromEntries(
+    slices.map((slice) => [slice[sliceKey].name, slice[sliceKey].reducer])
   )
 
   const store = configureStore<State>({ reducer })
