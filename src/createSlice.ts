@@ -4,6 +4,7 @@ import {
   createSlice,
 } from '@reduxjs/toolkit'
 import { Modify } from './types'
+import { sliceKey } from './config'
 
 export default function <
   State,
@@ -17,8 +18,8 @@ export default function <
   const slice = createSlice({ name, initialState, reducers })
 
   // @ts-ignore
-  slice.actions['__slice__'] = slice
+  slice.actions[sliceKey] = slice
 
-  type Output = Modify<typeof slice.actions, { __slice__: typeof slice }>
+  type Output = Modify<typeof slice.actions, { [sliceKey]: typeof slice }>
   return slice.actions as Output
 }

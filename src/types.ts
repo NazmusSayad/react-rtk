@@ -1,7 +1,9 @@
+import { sliceKey } from './config'
+
+export type SliceKey = typeof sliceKey
+
 export type Modify<T, R> = Omit<T, keyof R> & R
 
-export type UnionToIntersection<U> = (
-  U extends any ? (arg: U) => any : never
-) extends (arg: infer I) => any
-  ? I
-  : never
+export type EntriesToObject<T extends [string, any][]> = {
+  [K in T[number][0]]: Extract<T[number], [K, any]>[1]
+}
