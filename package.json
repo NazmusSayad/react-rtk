@@ -1,15 +1,15 @@
 {
   "name": "react-rtk",
-  "version": "1.0.1",
+  "version": "1.0.2",
+  "peerDependencies": {
+    "@reduxjs/toolkit": "*",
+    "react-redux": "*"
+  },
   "devDependencies": {
     "@reduxjs/toolkit": "latest",
     "npm-ez": "^2.0.3",
     "react-redux": "latest",
     "typescript": "^5.0.4"
-  },
-  "peerDependencies": {
-    "@reduxjs/toolkit": "*",
-    "react-redux": "*"
   },
   "scripts": {
     "dev": "npm-ez dev",

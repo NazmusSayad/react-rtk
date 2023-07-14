@@ -1,25 +1,44 @@
 import {
-  CreateSliceOptions,
-  SliceCaseReducers,
   createSlice,
+  SliceCaseReducers,
+  CreateSliceOptions,
+  CaseReducer,
+  PayloadAction,
+  ValidateSliceCaseReducers,
 } from '@reduxjs/toolkit'
-import { Modify } from './types'
-import { sliceKey } from './config'
+import { CustomReducers } from './types'
 
 export default function <
   State,
-  CaseReducers extends SliceCaseReducers<State>,
+  Reducers extends CustomReducers<State>,
   Name extends string = string
 >(
   name: Name,
-  initialState: State | (() => State),
-  reducers: CreateSliceOptions<State, CaseReducers, Name>['reducers']
+  config: Omit<
+    CreateSliceOptions<State, SliceCaseReducers<State>, Name>,
+    'name' | 'reducers'
+  > & { reducers: Reducers }
 ) {
-  const slice = createSlice({ name, initialState, reducers })
+  const usable: any = {}
+  for (let key in config.reducers) {
+    usable[key] = (state: any, { payload }: any) => {
+      return config.reducers[key](state, payload)
+    }
+  }
 
-  // @ts-ignore
-  slice.actions[sliceKey] = slice
+  const reducers = usable as ValidateSliceCaseReducers<
+    State,
+    {
+      [K in keyof Reducers]: CaseReducer<
+        State,
+        PayloadAction<Parameters<Reducers[K]>[1]>
+      >
+    }
+  >
 
-  type Output = Modify<typeof slice.actions, { [sliceKey]: typeof slice }>
-  return slice.actions as Output
+  return createSlice({
+    ...config,
+    reducers,
+    name,
+  })
 }

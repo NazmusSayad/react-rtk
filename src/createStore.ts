@@ -1,25 +1,26 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { useSelector } from 'react-redux'
-import { EntriesToObject, SliceKey } from './types'
-import { sliceKey } from './config'
+import { EntriesToObject } from './types'
+import { generateReducers, generateActions } from './utils'
 
 export default <T extends any[]>(...slices: T) => {
   type Reducers = EntriesToObject<{
-    [I in keyof T]: [T[I][SliceKey]['name'], T[I][SliceKey]['reducer']]
+    [I in keyof T]: [T[I]['name'], T[I]['reducer']]
   }>
-
+  type Actions = EntriesToObject<{
+    [I in keyof T]: [T[I]['name'], T[I]['actions']]
+  }>
   type State = {
     [I in keyof Reducers]: ReturnType<Reducers[I]>
   }
 
-  const reducer: Reducers = Object.fromEntries(
-    slices.map((slice) => [slice[sliceKey].name, slice[sliceKey].reducer])
-  )
-
+  const reducer: Reducers = generateReducers(slices)
   const store = configureStore<State>({ reducer })
+
+  const actions: Actions = generateActions(store.dispatch, slices)
   function useStore<T>(selector: (state: State) => T) {
     return useSelector(selector)
   }
 
-  return [store, useStore] as const
+  return [store, useStore, actions] as const
 }
