@@ -7,9 +7,9 @@
 You can install **react-rtk** via npm or yarn:
 
 ```sh
-npm install react-rtk
+npm install react-rtk @reduxjs/toolkit react-redux
 # or
-yarn add react-rtk
+yarn add react-rtk @reduxjs/toolkit react-redux
 ```
 
 ## Usage
@@ -21,7 +21,7 @@ To start using **react-rtk**, create slices of your application's state using th
 Example:
 
 ```javascript
-import { createSlice, createStore } from 'react-rtk'
+import { createSlice } from 'react-rtk'
 
 const slice1 = createSlice('main', {
   initialState: {
@@ -54,6 +54,8 @@ const slice2 = createSlice('data', {
 Combine the created slices using the `createStore` function to create a Redux store for your application:
 
 ```javascript
+import { createStore } from 'react-rtk'
+
 const [store, useStore, actions] = createStore(slice1, slice2)
 ```
 

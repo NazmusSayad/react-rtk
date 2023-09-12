@@ -1,6 +1,6 @@
 {
   "name": "react-rtk",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "peerDependencies": {
     "@reduxjs/toolkit": "*",
     "react-redux": "*"
