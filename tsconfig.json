@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "moduleResolution": "nodenext",
+    "target": "es6",
+    "moduleResolution": "NodeNext",
     "skipLibCheck": true,
     "declaration": true,
     "inlineSourceMap": false,
