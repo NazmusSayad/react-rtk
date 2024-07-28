@@ -1,44 +1,74 @@
 import {
+  Draft,
   createSlice,
-  SliceCaseReducers,
-  CreateSliceOptions,
   CaseReducer,
   PayloadAction,
+  SliceSelectors,
+  SliceCaseReducers,
+  CreateSliceOptions,
   ValidateSliceCaseReducers,
 } from '@reduxjs/toolkit'
-import { CustomReducers } from './types'
+import { PartialObjectByKeys, Prettify, RemoveFirstElement } from './types'
 
 export default function <
   State,
-  Reducers extends CustomReducers<State>,
-  Name extends string = string
+  Name extends string,
+  Selectors extends SliceSelectors<State>,
+  ActionReducers extends CustomReducers<State>,
+  CaseReducers extends SliceCaseReducers<State>,
+  ReducerPath extends string = Name
 >(
   name: Name,
-  config: Omit<
-    CreateSliceOptions<State, SliceCaseReducers<State>, Name>,
-    'name' | 'reducers'
-  > & { reducers: Reducers }
+  config: Prettify<
+    PartialObjectByKeys<
+      Omit<
+        CreateSliceOptions<State, CaseReducers, Name, ReducerPath, Selectors>,
+        'name'
+      >,
+      'reducers'
+    > & { actions: ActionReducers }
+  >
 ) {
-  const usable: any = {}
-  for (let key in config.reducers) {
-    usable[key] = (state: any, { payload }: any) => {
-      return config.reducers[key](state, payload)
+  type ActionsCaseReducers = {
+    [K in keyof ActionReducers]: CaseReducer<
+      State,
+      PayloadAction<RemoveFirstElement<Parameters<ActionReducers[K]>>>
+    >
+  }
+
+  type CombinedCaseReducers = {
+    [K in keyof CaseReducer]: K extends keyof ActionsCaseReducers
+      ? never
+      : CaseReducers[K]
+  } & ActionsCaseReducers
+
+  const actionsToReducers = {} as ActionsCaseReducers
+  for (let key in config.actions) {
+    actionsToReducers[key] = function (state: Draft<State>, action) {
+      return config.actions[key](state, ...action.payload)
     }
   }
 
-  const reducers = usable as ValidateSliceCaseReducers<
-    State,
-    {
-      [K in keyof Reducers]: CaseReducer<
-        State,
-        PayloadAction<Parameters<Reducers[K]>[1]>
-      >
-    }
-  >
-
-  return createSlice({
+  const sliceConfig = {
     ...config,
-    reducers,
+    reducers: {
+      ...config.reducers,
+      ...actionsToReducers,
+    } as unknown as ValidateSliceCaseReducers<State, CombinedCaseReducers>,
     name,
-  })
+  }
+
+  return createSlice(sliceConfig)
+}
+
+export type CustomReducers<State = any> = Record<
+  string,
+  (state: Draft<State>, ...args: any[]) => any
+>
+
+export type CustomReducersToActions<Reducer extends CustomReducers> = {
+  [K in keyof Reducer]: (...args: Parameters<Reducer[K]>[0]) => {
+    type: string
+    payload: Parameters<Reducer[K]>[0]
+  }
 }

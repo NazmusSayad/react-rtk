@@ -1,27 +1,33 @@
 {
   "name": "react-rtk",
-  "version": "1.0.4",
+  "version": "1.0.5",
+  "scripts": {
+    "dev": "npmize dev",
+    "build": "npmize build",
+    "app": "vite ./app"
+  },
   "peerDependencies": {
     "@reduxjs/toolkit": "*",
     "react-redux": "*"
   },
   "devDependencies": {
-    "@reduxjs/toolkit": "latest",
-    "jspac": "^1.0.0",
-    "react-redux": "latest",
-    "typescript": "4"
+    "@reduxjs/toolkit": "^2.2.7",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react-swc": "^3.7.0",
+    "npmize": "^0.0.9",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-redux": "^9.1.2",
+    "typescript": "4",
+    "vite": "^5.3.5"
   },
-  "scripts": {
-    "dev": "jspac dev",
-    "build": "jspac build"
-  },
-  "main": "./dist-cjs/index.cjs",
-  "module": "./dist-mjs/index.mjs",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
   "exports": {
     ".": {
-      "require": "./dist-cjs/index.cjs",
-      "import": "./dist-mjs/index.mjs",
-      "types": "./dist-mjs/index.d.mts"
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
     }
   }
 }

@@ -1,26 +1,79 @@
-import { configureStore } from '@reduxjs/toolkit'
 import { useSelector } from 'react-redux'
-import { EntriesToObject } from './types'
-import { generateReducers, generateActions } from './utils'
+import { Slice, configureStore } from '@reduxjs/toolkit'
+import { getValueUsingPath } from './utils'
+import { CustomReducersToActions } from './createSlice'
+import { EntriesToObject, ObjectPath, ObjectPathValue } from './types'
 
-export default <T extends any[]>(...slices: T) => {
+export default function <TSlices extends Slice[]>(...slices: TSlices) {
+  return createAdvancedStore({}, ...slices)
+}
+
+export function createAdvancedStore<
+  TSlices extends Slice[],
+  TConfig extends Record<string, unknown>
+>(config: TConfig, ...slices: TSlices) {
   type Reducers = EntriesToObject<{
-    [I in keyof T]: [T[I]['name'], T[I]['reducer']]
+    [I in keyof TSlices]: [TSlices[I]['name'], TSlices[I]['reducer']]
   }>
-  type Actions = EntriesToObject<{
-    [I in keyof T]: [T[I]['name'], T[I]['actions']]
-  }>
+
   type State = {
     [I in keyof Reducers]: ReturnType<Reducers[I]>
   }
 
-  const reducer: Reducers = generateReducers(slices)
-  const store = configureStore<State>({ reducer })
+  type Actions = EntriesToObject<{
+    [I in keyof TSlices]: [
+      TSlices[I]['name'],
+      CustomReducersToActions<TSlices[I]['actions']>
+    ]
+  }>
 
-  const actions: Actions = generateActions(store.dispatch, slices)
-  function useStore<T>(selector: (state: State) => T) {
-    return useSelector(selector)
+  const reducer = generateReducers(slices) as Reducers
+  const store = configureStore<State>({ ...config, reducer })
+  const actions = generateActions(store.dispatch, slices) as Actions
+
+  function useStore<T extends ((state: State) => unknown) | ObjectPath<State>>(
+    path: T
+  ) {
+    const selectorFn =
+      typeof path === 'string'
+        ? (state: any) => getValueUsingPath(state, path)
+        : path
+
+    type Value = T extends ObjectPath<State>
+      ? ObjectPathValue<State, T>
+      : T extends (...args: any) => infer ReturnType
+      ? ReturnType
+      : never
+
+    return useSelector(selectorFn as any) as Value
   }
 
   return [store, useStore, actions] as const
+}
+
+function generateReducers(slices: Slice[]) {
+  const reducers: Record<string, any> = {}
+  slices.forEach((slice) => {
+    reducers[slice.name] = slice.reducer
+  })
+  return reducers
+}
+
+function generateActions(dispatch: any, slices: Slice[]) {
+  function wrapActions(actions: any) {
+    const newActions: Record<string, any> = {}
+    for (let key in actions) {
+      newActions[key] = (...args: any[]) => {
+        return dispatch(actions[key](args))
+      }
+    }
+    return newActions
+  }
+
+  const actions: any = {}
+  slices.forEach((slice) => {
+    actions[slice.name] = wrapActions(slice.actions)
+  })
+
+  return actions
 }

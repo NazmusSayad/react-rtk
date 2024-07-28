@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
     "skipLibCheck": true,
     "declaration": true,
     "inlineSourceMap": false,
     "strict": true,
     "pretty": true,
-    "removeComments": true
+    "removeComments": true,
+    "jsx": "react"
   },
-  "include": ["src"]
+  "include": ["./src"]
 }
